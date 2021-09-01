@@ -1,0 +1,13 @@
+h1 You made it! Have some weather
+
+form action="/search" method="POST"
+    input type="text" name="City" placeholder="City"<br>
+    input type="submit" value="Search"
+
+-if not (defined?(vars).nil?)
+    -if vars[1].nil?
+        p = "Something went wrong, please report this bug!"
+    -elsif vars[1] == "noResult"
+        p = "Sorry, no results match your search."
+    -elsif vars[1] == "overflow"
+        p = "Over #{vars[0]} results found for your search, please specify further."
