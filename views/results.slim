@@ -1,0 +1,9 @@
+h1 You found something!
+
+
+-vars[0].keys.each do |cityKey|
+    form action="/weather" method="GET"
+        input type="hidden" name="id" value="#{cityKey}"
+        input type="submit" value="#{vars[0][cityKey]}"
+
+a href="/" Back

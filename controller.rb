@@ -18,8 +18,13 @@ get('/error/:query') do
 end
 
 get('/results/:query') do
-    data = params
-    slim(:results)
+    data = query_decode(params["query"])
+    slim(:results, locals:{vars:data})
+end
+
+get('/weather') do
+
+    slim(:weather)
 end
 
 # Manages searches. Either sends to search results, to a selection page if there were many results, 
