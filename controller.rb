@@ -12,9 +12,14 @@ get('/') do
     slim(:index)
 end
 
-get("/error/:query") do
-    data = params["query"].split(',')
+get('/error/:query') do
+    data = params["query"].split('-')
     slim(:index, locals:{vars:data})
+end
+
+get('/results/:query') do
+    data = params
+    slim(:results)
 end
 
 # Manages searches. Either sends to search results, to a selection page if there were many results, 
@@ -32,9 +37,11 @@ post('/search') do
         #search results directly
     elsif 0 < len && len <= max_search_results
         #redirect to a selection of results
+        query = query_encode([cities])
+        redirect("/results/#{query}")
     else
         #return to search with error saying if it's too much or too little.
-        query = "#{max_search_results},"
+        query = "#{max_search_results}-"
         if len == 0
             query += "noResult"
         elsif len > max_search_results

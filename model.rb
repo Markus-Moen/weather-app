@@ -1,4 +1,4 @@
-require 'json'
+#require 'json'
 
 module Model
     # Searches for all cities matching a search word
@@ -45,6 +45,54 @@ module Model
         end
         for i in 0..(names.length-1) do
             output[ids[i]] = names[i]
+        end
+        return output
+    end
+
+    #
+    def query_encode(hashes)
+        output = ""
+        hashes.each do |h|
+            keys = h.keys
+            keys.each do |k|
+                output += "#{k}=#{h[k]}&"
+            end
+            output += "-"
+        end
+        if output.include? " "
+            i = 0
+            while i < output.length
+                if output[i] == " "
+                    output[i] = "_"
+                end
+                i += 1
+            end
+        end
+        puts output.delete_suffix("-")
+        return output.delete_suffix("-")
+    end
+
+    #
+    def query_decode(str)
+        output = []
+        if str.include? "_"
+            i = 0
+            while i < str.length
+                if str[i] == "_"
+                    str[i] = " "
+                end
+                i += 1
+            end
+        end
+        strings = str.split("-")
+        strings.each do |s|
+            hash = {}
+            pairs = s.split("&")
+            pairs.each do |ps|
+                pair = ps.split("=")
+                hash[pair[0]] = pair[1]
+            end
+            output << hash
         end
         return output
     end
