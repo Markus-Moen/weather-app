@@ -1,9 +1,8 @@
 h1 You found something!
 
 
--vars[0].keys.each do |cityKey|
-    form action="/weather" method="GET"
-        input type="hidden" name="id" value="#{cityKey}"
-        input type="submit" value="#{vars[0][cityKey]}"
+-vars.keys.each do |cityKey|
+    form action="/weather/#{cityKey}" method="GET"
+        input type="submit" value="#{vars[cityKey]}"
 
 a href="/" Back

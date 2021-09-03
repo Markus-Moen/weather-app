@@ -18,12 +18,13 @@ get('/error/:query') do
 end
 
 get('/results/:query') do
-    data = query_decode(params["query"])
+    data = query_decode(params["query"])[0]
     slim(:results, locals:{vars:data})
 end
 
-get('/weather') do
-
+get('/weather/:id') do
+    #params["id"].delete_suffix("?").to_i
+    api_call(params["id"].to_i)
     slim(:weather)
 end
 
@@ -34,12 +35,14 @@ end
 #
 # @see Model#city_search
 post('/search') do
-    max_search_results = 15
+    max_search_results = 100
     search = params["City"]
     cities = city_search(search)
     len = cities.length
     if len == 1
         #search results directly
+        # query = query_encode([cities])
+        redirect("/weather/#{cities.keys[0]}")
     elsif 0 < len && len <= max_search_results
         #redirect to a selection of results
         query = query_encode([cities])

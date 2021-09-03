@@ -1,4 +1,8 @@
 #require 'json'
+require 'net/http'
+require 'openssl'
+#API-Key = 18af1bfdf08916a87f26da3dba389218
+#API-call = api.openweathermap.org/data/2.5/forecast?id={city ID}&appid={API-Key}
 
 module Model
     # Searches for all cities matching a search word
@@ -95,5 +99,22 @@ module Model
             output << hash
         end
         return output
+    end
+
+    def api_call(cityId)
+        # apiKey = "18af1bfdf08916a87f26da3dba389218"
+        p cityId
+        url = URI("https://community-open-weather-map.p.rapidapi.com/forecast?units=metric&id=#{cityId}")
+
+        http = Net::HTTP.new(url.host, url.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+        request = Net::HTTP::Get.new(url)
+        request["x-rapidapi-host"] = 'community-open-weather-map.p.rapidapi.com'
+        request["x-rapidapi-key"] = '6c001e4c33msh4c6d40dd2443580p1d9665jsnc61acf4c2931'
+
+        response = http.request(request)
+        puts response.read_body
     end
 end
