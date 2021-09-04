@@ -1,4 +1,4 @@
-h1 You made it! Have some weather
+h1 Enter a city to search for current weather.
 
 form action="/search" method="POST"
     input type="text" name="City" placeholder="City"<br>
@@ -11,6 +11,8 @@ form action="/search" method="POST"
         p = "Sorry, no results match your search."
     -elsif error["error"] == "overflow"
         p = "Over #{error["max"]} results found for your search, please specify further."
+    -elsif error["error"] == "ascii"
+        p = "Please make sure your search is in English and only contains ASCII characters."
     -else
         p = "Error #{error["cod"]}: #{error["error"]}"
 

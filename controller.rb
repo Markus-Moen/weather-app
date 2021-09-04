@@ -40,6 +40,10 @@ end
 post('/search') do
     max_search_results = 20
     search = params["City"]
+    if not search.ascii_only?
+        query = {"error" => "ascii"}
+        redirect("/error/#{query_encode(query)}")
+    end
     cities = city_search(search)
     len = cities.length
     if len == 1
@@ -52,8 +56,8 @@ post('/search') do
         redirect("/results/#{query}")
     else
         #return to search with error saying if it's too much or too little.
-        query = {}
-        query["max"] = max_search_results
+        query = {"max" => max_search_results}
+        # query["max"] = max_search_results
         if len == 0
             query["error"] = "noResult"
         elsif len > max_search_results
