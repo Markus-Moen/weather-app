@@ -9,23 +9,26 @@ include Model
 # Displays the landing page
 #
 get('/') do
-    slim(:index)
+    slim(:index, locals:{error:nil})
 end
 
 get('/error/:query') do
-    data = params["query"].split('-')
-    slim(:index, locals:{vars:data})
+    data = query_decode(params["query"])
+    slim(:index, locals:{error:data})
 end
 
 get('/results/:query') do
-    data = query_decode(params["query"])[0]
+    data = query_decode(params["query"])
     slim(:results, locals:{vars:data})
 end
 
 get('/weather/:id') do
-    #params["id"].delete_suffix("?").to_i
-    api_call(params["id"].to_i)
-    slim(:weather)
+    data = api_call(params["id"])
+    if data["error"] != nil
+        data = query_encode(data)
+        redirect("/error/#{data}")
+    end
+    slim(:weather, locals:{weather:data})
 end
 
 # Manages searches. Either sends to search results, to a selection page if there were many results, 
@@ -35,7 +38,7 @@ end
 #
 # @see Model#city_search
 post('/search') do
-    max_search_results = 100
+    max_search_results = 20
     search = params["City"]
     cities = city_search(search)
     len = cities.length
@@ -45,18 +48,18 @@ post('/search') do
         redirect("/weather/#{cities.keys[0]}")
     elsif 0 < len && len <= max_search_results
         #redirect to a selection of results
-        query = query_encode([cities])
+        query = query_encode(cities)
         redirect("/results/#{query}")
     else
         #return to search with error saying if it's too much or too little.
-        query = "#{max_search_results}-"
+        query = {}
+        query["max"] = max_search_results
         if len == 0
-            query += "noResult"
+            query["error"] = "noResult"
         elsif len > max_search_results
-            query += "overflow"
-        else
+            query["error"] = "overflow"
         end
-        redirect("/error/#{query}")
+        redirect("/error/#{query_encode(query)}")
     end
     redirect("/")
 end

@@ -4,10 +4,14 @@ form action="/search" method="POST"
     input type="text" name="City" placeholder="City"<br>
     input type="submit" value="Search"
 
--if not (defined?(vars).nil?)
-    -if vars[1].nil?
+-if not (error.nil?)
+    -if error["error"].nil?
         p = "Something went wrong, please report this bug!"
-    -elsif vars[1] == "noResult"
+    -elsif error["error"] == "noResult"
         p = "Sorry, no results match your search."
-    -elsif vars[1] == "overflow"
-        p = "Over #{vars[0]} results found for your search, please specify further."
+    -elsif error["error"] == "overflow"
+        p = "Over #{error["max"]} results found for your search, please specify further."
+    -else
+        p = "Error #{error["cod"]}: #{error["error"]}"
+
+a href="/" Back

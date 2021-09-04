@@ -1,4 +1,4 @@
-#require 'json'
+require 'json'
 require 'net/http'
 require 'openssl'
 #API-Key = 18af1bfdf08916a87f26da3dba389218
@@ -54,15 +54,15 @@ module Model
     end
 
     #
-    def query_encode(hashes)
+    def query_encode(hash)
         output = ""
-        hashes.each do |h|
-            keys = h.keys
+        # hashes.each do |h|
+            keys = hash.keys
             keys.each do |k|
-                output += "#{k}=#{h[k]}&"
+                output += "#{k}=#{hash[k]}&"
             end
-            output += "-"
-        end
+            # output += "-"
+        # end
         if output.include? " "
             i = 0
             while i < output.length
@@ -72,13 +72,12 @@ module Model
                 i += 1
             end
         end
-        puts output.delete_suffix("-")
-        return output.delete_suffix("-")
+        return output#.delete_suffix("-")
     end
 
     #
     def query_decode(str)
-        output = []
+        # output = []
         if str.include? "_"
             i = 0
             while i < str.length
@@ -88,23 +87,24 @@ module Model
                 i += 1
             end
         end
-        strings = str.split("-")
-        strings.each do |s|
+        # strings = str.split("-")
+        # strings.each do |s|
             hash = {}
-            pairs = s.split("&")
+            pairs = str.split("&")
             pairs.each do |ps|
                 pair = ps.split("=")
                 hash[pair[0]] = pair[1]
             end
-            output << hash
-        end
-        return output
+            # output << hash
+        # end
+        return hash#output
     end
 
     def api_call(cityId)
         # apiKey = "18af1bfdf08916a87f26da3dba389218"
-        p cityId
-        url = URI("https://community-open-weather-map.p.rapidapi.com/forecast?units=metric&id=#{cityId}")
+        # p cityId
+        
+        url = URI("https://community-open-weather-map.p.rapidapi.com/weather?id=#{cityId}&lang=en&units=metric")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
@@ -114,7 +114,31 @@ module Model
         request["x-rapidapi-host"] = 'community-open-weather-map.p.rapidapi.com'
         request["x-rapidapi-key"] = '6c001e4c33msh4c6d40dd2443580p1d9665jsnc61acf4c2931'
 
-        response = http.request(request)
-        puts response.read_body
+        # response = http.request(request)
+        # puts response.read_body
+
+        response = JSON.parse(http.request(request).read_body)
+        if response["cod"] == 200
+            #success, do reasonable stuffs
+            weather = {}
+            puts response["name"]
+            weather["name"] = response["name"]
+            puts response["weather"][0]["main"]
+            weather["main"] = response["weather"][0]["main"]
+            puts response["weather"][0]["description"]
+            weather["description"] = response["weather"][0]["description"]
+            return weather
+        elsif response["cod"] == 404 or response["cod"] == "404"
+            #ID didn't work
+            puts response["cod"]
+            puts response
+            response["error"] = response["message"]
+            return response
+        else
+            puts response["cod"]
+            puts response
+            response["error"] = response["message"]
+            return response
+        end
     end
 end
