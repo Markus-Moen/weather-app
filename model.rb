@@ -53,7 +53,24 @@ module Model
         return output
     end
 
+    # Returns true if all elements in an array only contains ASCII-characters
     #
+    # @param [Array] arr is an array of strings that will be checked for characters
+    #
+    # @return [Bool] output is true if no non-ascii characters are found, and false otherwise
+    def ascii_check(arr)
+        output = true
+        arr.each do |str|
+            output = output && str.ascii_only?
+        end
+        return output
+    end
+
+    # Turns a hash into a string in a reversible format
+    #
+    # @param [Hash] hash is the hash to be converted into a string
+    #
+    # @return [String] output is the input hash converted into a string
     def query_encode(hash)
         output = ""
         # hashes.each do |h|
@@ -75,7 +92,11 @@ module Model
         return output#.delete_suffix("-")
     end
 
+    # Turns a string into a hash based on the format in query_encode
     #
+    # @param [String] str is the string that will be converted into a hash
+    #
+    # @return [Hash] output is the input string converted into a hash
     def query_decode(str)
         # output = []
         if str.include? "_"
@@ -100,10 +121,19 @@ module Model
         return hash#output
     end
 
+    # Calls the Openweathermap API to ask for current weather
+    #
+    # @param [String] cityId cointains the ID for the city to be searched for, as listed in city.list.json
+    #
+    # @return [Hash] weather
+    #   * "name" [String] the name of the chosen city
+    #   * "main" [String] the current weather of the chosen city
+    #   * "description" [String] a description of the chosen weather
+    # @return [Hash] response
+    #   * "cod" [String] the error code
+    #   * "error" [String] the error message
+    #   * "message" [String] the error message
     def api_call(cityId)
-        # apiKey = "18af1bfdf08916a87f26da3dba389218"
-        # p cityId
-        
         url = URI("https://community-open-weather-map.p.rapidapi.com/weather?id=#{cityId}&lang=en&units=metric")
 
         http = Net::HTTP.new(url.host, url.port)
@@ -114,29 +144,14 @@ module Model
         request["x-rapidapi-host"] = 'community-open-weather-map.p.rapidapi.com'
         request["x-rapidapi-key"] = '6c001e4c33msh4c6d40dd2443580p1d9665jsnc61acf4c2931'
 
-        # response = http.request(request)
-        # puts response.read_body
-
         response = JSON.parse(http.request(request).read_body)
         if response["cod"] == 200
-            #success, do reasonable stuffs
             weather = {}
-            puts response["name"]
             weather["name"] = response["name"]
-            puts response["weather"][0]["main"]
             weather["main"] = response["weather"][0]["main"]
-            puts response["weather"][0]["description"]
             weather["description"] = response["weather"][0]["description"]
             return weather
-        elsif response["cod"] == 404 or response["cod"] == "404"
-            #ID didn't work
-            puts response["cod"]
-            puts response
-            response["error"] = response["message"]
-            return response
         else
-            puts response["cod"]
-            puts response
             response["error"] = response["message"]
             return response
         end

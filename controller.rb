@@ -12,16 +12,27 @@ get('/') do
     slim(:index, locals:{error:nil})
 end
 
+# Displays the landing page but with an error message
+#
+# @param [String] query is a string containing error information
 get('/error/:query') do
     data = query_decode(params["query"])
     slim(:index, locals:{error:data})
 end
 
+# Shows the page containing the search results if they're not unambiguous
+#
+# @param [String] query is a string containing cities and their IDs
 get('/results/:query') do
     data = query_decode(params["query"])
     slim(:results, locals:{vars:data})
 end
 
+# Shows the weather for a chosen city
+# 
+# @param [String] id is the ID of the city that which will be sent in the API request
+#
+# @see Model#api_call
 get('/weather/:id') do
     data = api_call(params["id"])
     if data["error"] != nil
@@ -40,11 +51,11 @@ end
 post('/search') do
     max_search_results = 20
     search = params["City"]
-    if not search.ascii_only?
+    cities = city_search(search)
+    if not ascii_check(cities.values)
         query = {"error" => "ascii"}
         redirect("/error/#{query_encode(query)}")
     end
-    cities = city_search(search)
     len = cities.length
     if len == 1
         #search results directly
