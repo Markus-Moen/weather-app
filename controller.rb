@@ -59,7 +59,6 @@ post('/search') do
     len = cities.length
     if len == 1
         #search results directly
-        # query = query_encode([cities])
         redirect("/weather/#{cities.keys[0]}")
     elsif 0 < len && len <= max_search_results
         #redirect to a selection of results
@@ -68,7 +67,6 @@ post('/search') do
     else
         #return to search with error saying if it's too much or too little.
         query = {"max" => max_search_results}
-        # query["max"] = max_search_results
         if len == 0
             query["error"] = "noResult"
         elsif len > max_search_results

@@ -1,8 +1,6 @@
 require 'json'
 require 'net/http'
 require 'openssl'
-#API-Key = 18af1bfdf08916a87f26da3dba389218
-#API-call = api.openweathermap.org/data/2.5/forecast?id={city ID}&appid={API-Key}
 
 module Model
     # Searches for all cities matching a search word
@@ -73,13 +71,10 @@ module Model
     # @return [String] output is the input hash converted into a string
     def query_encode(hash)
         output = ""
-        # hashes.each do |h|
-            keys = hash.keys
-            keys.each do |k|
-                output += "#{k}=#{hash[k]}&"
-            end
-            # output += "-"
-        # end
+        keys = hash.keys
+        keys.each do |k|
+            output += "#{k}=#{hash[k]}&"
+        end
         if output.include? " "
             i = 0
             while i < output.length
@@ -89,7 +84,7 @@ module Model
                 i += 1
             end
         end
-        return output#.delete_suffix("-")
+        return output
     end
 
     # Turns a string into a hash based on the format in query_encode
@@ -98,7 +93,6 @@ module Model
     #
     # @return [Hash] output is the input string converted into a hash
     def query_decode(str)
-        # output = []
         if str.include? "_"
             i = 0
             while i < str.length
@@ -108,17 +102,13 @@ module Model
                 i += 1
             end
         end
-        # strings = str.split("-")
-        # strings.each do |s|
-            hash = {}
-            pairs = str.split("&")
-            pairs.each do |ps|
-                pair = ps.split("=")
-                hash[pair[0]] = pair[1]
-            end
-            # output << hash
-        # end
-        return hash#output
+        hash = {}
+        pairs = str.split("&")
+        pairs.each do |ps|
+            pair = ps.split("=")
+            hash[pair[0]] = pair[1]
+        end
+        return hash
     end
 
     # Calls the Openweathermap API to ask for current weather
